@@ -4,7 +4,7 @@
 
 We've created an RShiny application to use our newly created package. 
 The application is disponible on shinyapp.io "lien".
-And on github ([lien](https://github.com/HugoA-A/RShiny_NaiveBayesClassifier_PMH.git))
+And on github ([[lien](https://github.com/HugoA-A/RShiny_NaiveBayesClassifier_PMH.git)](https://github.com/HugoA-A/RShiny_nbsisemhp.git))
 
 ### Interface and componant 
 
