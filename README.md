@@ -14,7 +14,7 @@ Just to the right you will see the pages available:
 - Loading data : The default page when the application is launched. Allows you to load .csv or .xlsx data, select the target variable and view the loaded table.
 - Data exploration : Page where you can generate statistics on the data you have previously loaded.
 - Fit: Page where you can separate the data into train and test, select the explanatory variables and train the model.
-- Predict : Page where you can use the previously trained model, export the results, display the accuracy and confusion matrix.
+- Predict : Page where you can use the previously trained model, export the results, display the accuracy and confusion matrix and calaculate the probability of belonging to each class for each observation.
 
 We will now go into more detail on each of these pages.
 
@@ -52,7 +52,7 @@ The "train model" button will train the model by taking the selected X and y of 
 
 #### Predict
 
-The predict page has two sound tabs.
+The predict page has three tabs.
 
 ![image](https://github.com/Pioterr/Sise_NaiveBayes/assets/145919293/a176fae9-ff5c-4964-8ecc-be60b3184492)
 
@@ -63,3 +63,8 @@ You can also export the results in .csv format.
 ![image](https://github.com/Pioterr/Sise_NaiveBayes/assets/145919293/da8adb2b-f579-4d4a-a197-6c7acbaf892d)
 
 The second page, "Measure", allows you to calculate the accuracy score and the confusion matrix using the predictions and the y values from the test dataset.
+
+<img width="947" alt="image" src="https://github.com/Pioterr/nbsisemhp/assets/145919293/6728d2bc-1274-4131-874c-d5715b1839af">
+
+The third page, "Probability", allows you to calculate the probabilties of belonging to each class for each observation. This is calculated usin the test dataset generated before.
+
