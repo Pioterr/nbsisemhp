@@ -32,6 +32,12 @@ Return target prior probability. Read-only}
 
 \item{\code{inter}}{(`list()`)\cr
 Return target prior probability. Read-only}
+
+\item{\code{inter}}{(`list()`)\cr
+Return target prior probability. Read-only}
+
+\item{\code{inter}}{(`list()`)\cr
+Return target prior probability. Read-only}
 }
 \if{html}{\out{</div>}}
 }
@@ -41,12 +47,16 @@ Return target prior probability. Read-only}
 \item \href{#method-NaiveBayesClassifier-new}{\code{naivebayes_classifier$new()}}
 \item \href{#method-NaiveBayesClassifier-stratified_split}{\code{naivebayes_classifier$stratified_split()}}
 \item \href{#method-NaiveBayesClassifier-fit}{\code{naivebayes_classifier$fit()}}
-\item \href{#method-NaiveBayesClassifier-predict_v2}{\code{naivebayes_classifier$predict_v2()}}
+\item \href{#method-NaiveBayesClassifier-fit_parallel}{\code{naivebayes_classifier$fit_parallel()}}
+\item \href{#method-NaiveBayesClassifier-predict}{\code{naivebayes_classifier$predict()}}
 \item \href{#method-NaiveBayesClassifier-predict_parallel}{\code{naivebayes_classifier$predict_parallel()}}
+\item \href{#method-NaiveBayesClassifier-predict_proba_joint_log}{\code{naivebayes_classifier$predict_proba_joint_log()}}
+\item \href{#method-NaiveBayesClassifier-predict_proba_log}{\code{naivebayes_classifier$predict_proba_log()}}
 \item \href{#method-NaiveBayesClassifier-predict_proba}{\code{naivebayes_classifier$predict_proba()}}
 \item \href{#method-NaiveBayesClassifier-score}{\code{naivebayes_classifier$score()}}
-\item \href{#method-NaiveBayesClassifier-test}{\code{naivebayes_classifier$test()}}
+\item \href{#method-NaiveBayesClassifier-plot}{\code{naivebayes_classifier$plot()}}
 \item \href{#method-NaiveBayesClassifier-print}{\code{naivebayes_classifier$print()}}
+\item \href{#method-NaiveBayesClassifier-summary}{\code{naivebayes_classifier$summary()}}
 \item \href{#method-NaiveBayesClassifier-clone}{\code{naivebayes_classifier$clone()}}
 }
 }
@@ -102,7 +112,13 @@ Return a fitted object of classe NaiveBayesClassifier
 \subsection{Method \code{fit()}}{
 Fit the object to a training data set
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{naivebayes_classifier$fit(X, y, alpha = private$Falpha, col_to_keep = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{naivebayes_classifier$fit(
+  X,
+  y,
+  alpha = private$Falpha,
+  col_to_keep = NULL,
+  uni_prior_prob = FALSE
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -114,7 +130,7 @@ Fit the object to a training data set
 \item{\code{y}}{(`list()`)\cr
 List of class to evaluate}
 
-\item{\code{col_to_keep}}{(`list()`) columns not to discretize 
+\item{\code{col_to_keep}}{(`list()`) columns not to discretize
 Default = NULL}
 }
 \if{html}{\out{</div>}}
@@ -124,12 +140,28 @@ Return a fitted object of classe NaiveBayesClassifier
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-NaiveBayesClassifier-predict_v2"></a>}}
-\if{latex}{\out{\hypertarget{method-NaiveBayesClassifier-predict_v2}{}}}
-\subsection{Method \code{predict_v2()}}{
+\if{html}{\out{<a id="method-NaiveBayesClassifier-fit_parallel"></a>}}
+\if{latex}{\out{\hypertarget{method-NaiveBayesClassifier-fit_parallel}{}}}
+\subsection{Method \code{fit_parallel()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{naivebayes_classifier$fit_parallel(
+  X,
+  y,
+  alpha = 1,
+  ncores = 4,
+  col_to_keep = NULL,
+  uni_prior_prob = FALSE
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-NaiveBayesClassifier-predict"></a>}}
+\if{latex}{\out{\hypertarget{method-NaiveBayesClassifier-predict}{}}}
+\subsection{Method \code{predict()}}{
 Predict target values based whole data set.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{naivebayes_classifier$predict_v2(X)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{naivebayes_classifier$predict(X)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -166,11 +198,29 @@ Return a list of class prediction
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-NaiveBayesClassifier-predict_proba_joint_log"></a>}}
+\if{latex}{\out{\hypertarget{method-NaiveBayesClassifier-predict_proba_joint_log}{}}}
+\subsection{Method \code{predict_proba_joint_log()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{naivebayes_classifier$predict_proba_joint_log(X)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-NaiveBayesClassifier-predict_proba_log"></a>}}
+\if{latex}{\out{\hypertarget{method-NaiveBayesClassifier-predict_proba_log}{}}}
+\subsection{Method \code{predict_proba_log()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{naivebayes_classifier$predict_proba_log(X)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-NaiveBayesClassifier-predict_proba"></a>}}
 \if{latex}{\out{\hypertarget{method-NaiveBayesClassifier-predict_proba}{}}}
 \subsection{Method \code{predict_proba()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{naivebayes_classifier$predict_proba()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{naivebayes_classifier$predict_proba(X)}\if{html}{\out{</div>}}
 }
 
 }
@@ -180,7 +230,7 @@ Return a list of class prediction
 \subsection{Method \code{score()}}{
 Use to compare test value with predict value
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{naivebayes_classifier$score(X, y, as = "table", self = TRUE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{naivebayes_classifier$score(X, y, as = "table", pred_f = TRUE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -195,7 +245,7 @@ List of test y to evaluate the model prediction.}
 \item{\code{as}}{((`str()`)) change to get the confusion matrix, or different indicator.Default is 'table' for a confusion matrix.
 possible value ['table','accuracy']}
 
-\item{\code{self}}{(`array`) change to perform a self prediction, or to use result from previous prediction.
+\item{\code{pred_f}}{(`array`) change to perform a self prediction, or to use result from previous prediction.
 possible value [`TRUE`, `FALSE`]
 if TRUE, X need to be a 2D array of shape (n_row,n_feature) with feature as column name
 if FALSE, X need to be a list of prediction}
@@ -207,11 +257,13 @@ Return result between y test and self$predict(X)
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-NaiveBayesClassifier-test"></a>}}
-\if{latex}{\out{\hypertarget{method-NaiveBayesClassifier-test}{}}}
-\subsection{Method \code{test()}}{
+\if{html}{\out{<a id="method-NaiveBayesClassifier-plot"></a>}}
+\if{latex}{\out{\hypertarget{method-NaiveBayesClassifier-plot}{}}}
+\subsection{Method \code{plot()}}{
+Plot a bar plot for each variable of explanatory variables.
+For each class of a variable, n bars are plot (n = number of y class).
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{naivebayes_classifier$test(X, y)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{naivebayes_classifier$plot()}\if{html}{\out{</div>}}
 }
 
 }
@@ -223,6 +275,15 @@ Print function for the naive bayes classifier object.
 Print parameters, number of feature and number of classe
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{naivebayes_classifier$print()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-NaiveBayesClassifier-summary"></a>}}
+\if{latex}{\out{\hypertarget{method-NaiveBayesClassifier-summary}{}}}
+\subsection{Method \code{summary()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{naivebayes_classifier$summary()}\if{html}{\out{</div>}}
 }
 
 }
