@@ -178,15 +178,18 @@ naivebayes_classifier <- R6::R6Class(classname = "NaiveBayesClassifier",
 
                                      #Check package presence
                                      if (!require(discretization)){
-                                       install.packages("discretization")
+                                       stop("discretization package must be installed\n")
+                                       #install.packages("discretization")
                                      }
 
                                      if (!require(doParallel)){
-                                       install.packages("doParallel")
+                                       stop("doParallel package must be installed\n")
+                                       #install.packages("doParallel")
                                      }
 
                                      if (!require(foreach)){
-                                       install.packages("foreach")
+                                       stop("foreach package must be installed\n")
+                                       #install.packages("foreach")
                                      }
 
 

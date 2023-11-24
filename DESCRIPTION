@@ -2,11 +2,16 @@ Package: nbsisemhp
 Type: Package
 Title: Create a Naive bayes classifier function that return an object
 Version: 0.1.0
-Author: Who wrote it
+Author: Hugo André-Antichan, Martin Revel, Pierre Terron
 Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Description: Provide an object that encapsulate a naives bayes classifier.        
+             It accept every type of data as entry.
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.3
+Imports:
+  doParallel,
+  foreach,
+  discretization,
+  plotly
