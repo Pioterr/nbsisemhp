@@ -3,6 +3,7 @@
 ## Rshiny Tuorial:
 
 We've created an RShiny application to use our newly created package. 
+
 The application is disponible on shinyapp.io ([lien](https://pmh-naivebayesclassifier.shinyapps.io/appr/)).
 And on github ([lien](https://github.com/HugoA-A/RShiny_nbsisemhp.git))
 ### Interface and componant 
