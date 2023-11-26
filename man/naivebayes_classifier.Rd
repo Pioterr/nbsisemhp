@@ -4,40 +4,71 @@
 \alias{naivebayes_classifier}
 \title{R6 class for Naive Bayes classifier Object}
 \description{
-Create an object of class NaiveBayesClassifier.
-The Naives Bayes Classifier is a classifier based on applying Bayes' theorem with strong(naive) independance
-assumption between the features
+Create an object of class NaiveBayesClassifier, a classifier based on applying Bayes' theorem with a strong (naive) independence assumption between features.
+
+This classifier is suitable for categorical and numerical data, and it assumes that features are conditionally independent given the class label.
 }
 \details{
-Additional details...
+The NaiveBayes Classifier supports both categorical and numerical features. It automatically handles missing values and provides options for smoothing parameters during training.
 }
-\references{
-references
+\note{
+If some feature values were not seen during model fitting, their contribution to log probabilities is ignored.
 }
+\examples{
+# Import data
+data(iris)
+# Get target and features
+y <- iris$Species
+X <- iris[,1:3]
+# Initialize object
+obj <- naivebayes_classifier$new()
+# Train
+obj$fit(X, y)
+# Predict
+y_pred <- obj$predict(X)
+# Score
+obj$score(y_pred,y, as = 'table', pred_f= FALSE)
+print(y_pred)
+
+}
+\seealso{
+\code{\link{predict_proba}} for probability predictions instead of log probabilities.
+
+\code{\link{predict_proba_joint_log}} for obtaining the joint log probabilities.
+\code{\link{predict_proba}} for non-logarithmic probability predictions.
+
+\code{\link{predict_proba_log}} for obtaining logarithmic probabilities.
+\code{\link{predict}} for class predictions.
+}
+\keyword{bayes,}
+\keyword{classifier,}
+\keyword{learning}
+\keyword{machine}
+\keyword{naive}
 \section{Active bindings}{
 \if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
 \item{\code{alpha}}{(`float`)\cr
 Object smoothing parameters alpha used for actual fit.
-Alpha as impact on the calculated probability, you need to change it before a fit. Read-only}
+Alpha has an impact on the calculated probability, you need to change it before a fit. Read-only}
 
 \item{\code{logsweight}}{(`list()`)\cr
-Return list of posterior probability table. Read-only}
+Return list of posterior probability tables. Read-only}
 
 \item{\code{class_name}}{(`list()`)\cr
-Return list of target names. Read-only}
+Return a list of target names. Read-only}
 
 \item{\code{class_app}}{(`list()`)\cr
-Return target prior probability. Read-only}
+Return the target prior probability. Read-only}
 
 \item{\code{inter}}{(`list()`)\cr
-Return target prior probability. Read-only}
+Return the discretization intervals for numerical features. Read-only}
 
-\item{\code{inter}}{(`list()`)\cr
-Return target prior probability. Read-only}
+\item{\code{feature_name}}{(`list()`)\cr
+Return a list of feature names. Read-only}
 
-\item{\code{inter}}{(`list()`)\cr
-Return target prior probability. Read-only}
+\item{\code{n_feature_count}}{(`list()`)\cr
+Return a list of tables with the number of occurrences of features. Read-only}
 }
 \if{html}{\out{</div>}}
 }
@@ -64,7 +95,7 @@ Return target prior probability. Read-only}
 \if{html}{\out{<a id="method-NaiveBayesClassifier-new"></a>}}
 \if{latex}{\out{\hypertarget{method-NaiveBayesClassifier-new}{}}}
 \subsection{Method \code{new()}}{
-Creates a new instance of this [R6][R6::R6Class] class.
+Creates a new instance of the NaiveBayesClassifier class.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{naivebayes_classifier$new(alpha = 1)}\if{html}{\out{</div>}}
 }
@@ -72,8 +103,8 @@ Creates a new instance of this [R6][R6::R6Class] class.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{alpha}}{(`float`)\cr
-Smoothing parameters. Default is 1.}
+\item{\code{alpha}}{(`numeric(1)`)
+Smoothing parameter. Default is 1.}
 }
 \if{html}{\out{</div>}}
 }
@@ -82,7 +113,7 @@ Smoothing parameters. Default is 1.}
 \if{html}{\out{<a id="method-NaiveBayesClassifier-stratified_split"></a>}}
 \if{latex}{\out{\hypertarget{method-NaiveBayesClassifier-stratified_split}{}}}
 \subsection{Method \code{stratified_split()}}{
-Split the data in train and test
+Split the data into train and test sets.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{naivebayes_classifier$stratified_split(X, y, test_size = 0.3)}\if{html}{\out{</div>}}
 }
@@ -90,27 +121,27 @@ Split the data in train and test
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{X}}{(`array`)\cr
-2D array with feature as column name}
+\item{\code{X}}{(`data.frame`)
+Dataframe with features as columns.}
 
-\item{\code{y}}{(`list()`)\cr
-List of class to evaluate}
+\item{\code{y}}{(`vector`)
+Vector of class labels.}
 
-\item{\code{test_size}}{(`float`)\cr
-Size of the test sample
-Default = 0.3}
+\item{\code{test_size}}{(`numeric(1)`)
+Size of the test sample. Default is 0.3.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-Return a fitted object of classe NaiveBayesClassifier
+Returns a list with training and test sets for features (X_train, X_test)
+and class labels (y_train, y_test).
 }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-NaiveBayesClassifier-fit"></a>}}
 \if{latex}{\out{\hypertarget{method-NaiveBayesClassifier-fit}{}}}
 \subsection{Method \code{fit()}}{
-Fit the object to a training data set
+Fit the NaiveBayesClassifier object to a training dataset.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{naivebayes_classifier$fit(
   X,
@@ -124,25 +155,34 @@ Fit the object to a training data set
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{X}}{(`array`)\cr
-2D array with feature as column name}
+\item{\code{X}}{(`data.frame`)
+2D dataframe with features as column names.}
 
-\item{\code{y}}{(`list()`)\cr
-List of class to evaluate}
+\item{\code{y}}{(`vector`)
+Vector of class labels.}
 
-\item{\code{col_to_keep}}{(`list()`) columns not to discretize
-Default = NULL}
+\item{\code{alpha}}{(`numeric(1)`)
+Smoothing parameter. Default is the value set during initialization.}
+
+\item{\code{col_to_keep}}{(`character()`)
+Columns not to discretize. Default is NULL.}
+
+\item{\code{uni_prior_prob}}{(`logical(1)`)
+Use uniform prior probabilities. Default is FALSE. If set to TRUE, a uniform prior probability will be used in the calculation.
+Ex : 2 class -> p = c(0.5,0.5)
+     4 class -> p = c(0.25,0.25,0.25,0.25)}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-Return a fitted object of classe NaiveBayesClassifier
+Returns a fitted object of classe NaiveBayesClassifier
 }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-NaiveBayesClassifier-fit_parallel"></a>}}
 \if{latex}{\out{\hypertarget{method-NaiveBayesClassifier-fit_parallel}{}}}
 \subsection{Method \code{fit_parallel()}}{
+Fit the NaiveBayesClassifier object to a training dataset using parallel processing.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{naivebayes_classifier$fit_parallel(
   X,
@@ -154,6 +194,32 @@ Return a fitted object of classe NaiveBayesClassifier
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{X}}{(`data.frame`)
+2D dataframe with features as column names.}
+
+\item{\code{y}}{(`vector`)
+Vector of class labels.}
+
+\item{\code{alpha}}{(`numeric(1)`)
+Smoothing parameter. Default is 1.}
+
+\item{\code{ncores}}{(`integer(1)`)
+Number of cores to use for parallel processing. Default is 4. This can't be 0 or less. It can't exceed your computer number of cores.}
+
+\item{\code{col_to_keep}}{(`character()`)
+Columns not to discretize. Default is NULL.}
+
+\item{\code{uni_prior_prob}}{(`logical(1)`)
+Use uniform prior probabilities. Default is FALSE. If set to TRUE, a uniform prior probability will be used in the calculation.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Returns a fitted object of class NaiveBayesClassifier.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-NaiveBayesClassifier-predict"></a>}}
@@ -173,7 +239,7 @@ Predict target values based whole data set.
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-Return a list of class prediction
+Return a vector of class prediction
 }
 }
 \if{html}{\out{<hr>}}
@@ -190,45 +256,98 @@ Predict target values based whole data set. Use predict_on_one function
 \describe{
 \item{\code{X}}{(`array`)\cr
 2D array of shape (n_row,n_feature) with feature as column name}
+
+\item{\code{ncores}}{(`integer(1)`)
+Number of cores to use for parallel processing. Default is 4. This can't be 0 or less. It can't exceed your computer number of cores.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-Return a list of class prediction
+Return a vector of class prediction
 }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-NaiveBayesClassifier-predict_proba_joint_log"></a>}}
 \if{latex}{\out{\hypertarget{method-NaiveBayesClassifier-predict_proba_joint_log}{}}}
 \subsection{Method \code{predict_proba_joint_log()}}{
+Predict log joint probabilities table for target values based value obtained in fit.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{naivebayes_classifier$predict_proba_joint_log(X)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{X}}{(`data.frame`) 2D array of shape (n_row, n_feature) with feature names as column names.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+This function calculates the log joint probabilities based on the fitted model. It handles numeric and categorical features,
+and warns if any feature values were not seen during model fitting.
+}
+
+\subsection{Returns}{
+Returns a matrix of log joint probabilities with rows corresponding to observations and columns to class labels.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-NaiveBayesClassifier-predict_proba_log"></a>}}
 \if{latex}{\out{\hypertarget{method-NaiveBayesClassifier-predict_proba_log}{}}}
 \subsection{Method \code{predict_proba_log()}}{
+Predict normalized log probabilities for target values based on the entire data set.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{naivebayes_classifier$predict_proba_log(X)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{X}}{(`data.frame`) 2D array of shape (n_row, n_feature) with feature names as column names.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+This function calculates normalized log probabilities based on the fitted model. It ensures that the probabilities
+sum to 1 for each observation.
+The normalization is based on Logsumexp.
+}
+
+\subsection{Returns}{
+Returns a matrix of normalized log probabilities with rows corresponding to observations and columns to class labels.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-NaiveBayesClassifier-predict_proba"></a>}}
 \if{latex}{\out{\hypertarget{method-NaiveBayesClassifier-predict_proba}{}}}
 \subsection{Method \code{predict_proba()}}{
+Predict rounded probabilities for target values based on the entire data set.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{naivebayes_classifier$predict_proba(X)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{X}}{(`data.frame`) 2D array of shape (n_row, n_feature) with feature names as column names.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+This function calculates probabilities based on the fitted model and rounds them to three decimal places.
+normalization is based on logSumExp.
+}
+
+\subsection{Returns}{
+Returns a matrix of rounded probabilities with rows corresponding to observations and columns to class labels.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-NaiveBayesClassifier-score"></a>}}
 \if{latex}{\out{\hypertarget{method-NaiveBayesClassifier-score}{}}}
 \subsection{Method \code{score()}}{
-Use to compare test value with predict value
+Use to compare test value with predict value.
+return an error if value in prediction and values in observed are different.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{naivebayes_classifier$score(X, y, as = "table", pred_f = TRUE)}\if{html}{\out{</div>}}
 }
@@ -262,8 +381,14 @@ Return result between y test and self$predict(X)
 \subsection{Method \code{plot()}}{
 Plot a bar plot for each variable of explanatory variables.
 For each class of a variable, n bars are plot (n = number of y class).
+Warning : plot() only work if object has been fitted through the fit(), not the fit_para().
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{naivebayes_classifier$plot()}\if{html}{\out{</div>}}
+}
+
+\subsection{Details}{
+This function generates a bar plot for each variable based on the fitted model.
+Each bar represents the frequency of different classes for that variable.
 }
 
 }
@@ -282,10 +407,24 @@ Print parameters, number of feature and number of classe
 \if{html}{\out{<a id="method-NaiveBayesClassifier-summary"></a>}}
 \if{latex}{\out{\hypertarget{method-NaiveBayesClassifier-summary}{}}}
 \subsection{Method \code{summary()}}{
+Summary function for the naive Bayes classifier object.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{naivebayes_classifier$summary()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+This function prints a summary of the Naive Bayes Classifier, including:
+- Smoothing parameter (alpha)
+- Dimension of the training data set
+- Number of classes
+- Class names
+- Prior probabilities
+- Number of features
+- Features names
+- Non-numerical features names
+- Numerical features names
+- Discretization intervals for numerical features
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-NaiveBayesClassifier-clone"></a>}}

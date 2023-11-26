@@ -1,9 +1,9 @@
 #' @title R6 class for Naive Bayes classifier Object
 #'
 #' @description
-#' Create an object of class NaiveBayesClassifier.
-#' The Naives Bayes Classifier is a classifier based on applying Bayes' theorem with strong(naive) independance
-#' assumption between the features
+#' Create an object of class NaiveBayesClassifier, a classifier based on applying Bayes' theorem with a strong (naive) independence assumption between features.
+#'
+#' This classifier is suitable for categorical and numerical data, and it assumes that features are conditionally independent given the class label.
 #'
 #' @import doParallel
 #' @import foreach
@@ -13,37 +13,34 @@
 #'
 #' @export
 #'
-#' @example
-#' #Import data
-#' data(mtcars)
-#' #Get target and feature
-#' y <-
-#' X <-
-#'
+#' @examples
+#' # Import data
+#' data(iris)
+#' # Get target and features
+#' y <- iris$Species
+#' X <- iris[,1:3]
 #' # Initialize object
 #' obj <- naivebayes_classifier$new()
-#'
-#' #Train
-#' obj$fit(X,y)
-#'
-#' #Predict
+#' # Train
+#' obj$fit(X, y)
+#' # Predict
 #' y_pred <- obj$predict(X)
-#'
+#' # Score
+#' obj$score(y_pred,y, as = 'table', pred_f= FALSE)
+#' print(y_pred)
 #'
 #' @details
-#' Additional details...
-#'
-#' @references
-#' references
+#' The NaiveBayes Classifier supports both categorical and numerical features. It automatically handles missing values and provides options for smoothing parameters during training.
 #'
 #'
-#'
+#' @keywords
+#' naive bayes, classifier, machine learning
 #'
 naivebayes_classifier <- R6::R6Class(classname = "NaiveBayesClassifier",
                                  private = list(
-                                   #log prediction probability
+                                   # log prediction probability
                                    log_prob_f = NULL,
-                                   #prediction probability
+                                   # prediction probability
                                    prob_f = NULL,
                                    #name of numerical features
                                    num = NULL,
@@ -55,23 +52,23 @@ naivebayes_classifier <- R6::R6Class(classname = "NaiveBayesClassifier",
                                    Fclass_name = NULL,
                                    #Feature name
                                    Ffeat_name = NULL,
-                                   #Calculated prior probability
+                                   # Calculated prior probability
                                    Fclass_app = NULL,
-                                   #Training data set dimension
+                                   # Training data set dimension
                                    Fdim_train = NULL,
-                                   #smoothing parameter
+                                   # smoothing parameter
                                    Falpha = NULL,
-                                   #number of feature seen during train
+                                   # number of individual per feature seen during train
                                    Fn_feature_count = NULL,
-                                   #table of feature probability log
+                                   # table of posterior probability log
                                    sample_weight = NULL,
-                                   #interval discretionary
+                                   # interval discretionary
                                    intervalle = NULL,
-                                   #numerical columns not to discretize
+                                   # numerical columns not to discretize
                                    Fcol_to_keep = NULL,
-                                   #Boolean, if true proceed discretisation
+                                   # Boolean, if true proceed discretisation
                                    Fdicret = TRUE,
-                                   #Has been fitted ?
+                                   # Has been fitted ?
                                    flag_fit = NULL,
                                    ###separate the dataframe into two dataframes based on the column type
                                    ###the keep argument allows you to indicate whether certain columns should not be discretized
@@ -98,6 +95,10 @@ naivebayes_classifier <- R6::R6Class(classname = "NaiveBayesClassifier",
                                          colonnes_non_numeriques <- c(colonnes_non_numeriques, colonne)
                                        }
                                      }
+
+                                     private$num <- colonnes_numeriques
+                                     private$non_num <- colonnes_non_numeriques
+
                                      ### If non there is non numerical columns to discretise
                                      ### Warning message and split the data
                                      if(count_non_categorical > 0){
@@ -166,10 +167,10 @@ naivebayes_classifier <- R6::R6Class(classname = "NaiveBayesClassifier",
                                  ),
                                  public = list(
                                    #' @description
-                                   #' Creates a new instance of this [R6][R6::R6Class] class.
+                                   #' Creates a new instance of the NaiveBayesClassifier class.
                                    #'
-                                   #' @param alpha (`float`)\cr
-                                   #' Smoothing parameters. Default is 1.
+                                   #' @param alpha (`numeric(1)`)
+                                   #' Smoothing parameter. Default is 1.
                                    #'
                                    #'
                                    initialize = function(alpha = 1){
@@ -195,20 +196,23 @@ naivebayes_classifier <- R6::R6Class(classname = "NaiveBayesClassifier",
 
                                    },
                                    #' @description
-                                   #' Split the data in train and test
+                                   #' Split the data into train and test sets.
                                    #'
-                                   #' @param X (`array`)\cr
-                                   #' 2D array with feature as column name
+                                   #' @param X (`data.frame`)
+                                   #' Dataframe with features as columns.
                                    #'
-                                   #' @param y (`list()`)\cr
-                                   #' List of class to evaluate
+                                   #' @param y (`vector`)
+                                   #' Vector of class labels.
                                    #'
-                                   #' @param test_size (`float`)\cr
-                                   #' Size of the test sample
-                                   #' Default = 0.3
+                                   #' @param test_size (`numeric(1)`)
+                                   #' Size of the test sample. Default is 0.3.
                                    #'
                                    #' @return
-                                   #' Return a fitted object of classe NaiveBayesClassifier
+                                   #' Returns a list with training and test sets for features (X_train, X_test)
+                                   #' and class labels (y_train, y_test).
+                                   #'
+                                   #' @export
+                                   #'
                                    stratified_split = function(X, y, test_size = 0.3) {
                                      ### Bind X and y in one dataframe
                                      data <- cbind.data.frame(X, y)
@@ -249,34 +253,44 @@ naivebayes_classifier <- R6::R6Class(classname = "NaiveBayesClassifier",
                                      ))
                                    },
                                    #' @description
-                                   #' Fit the object to a training data set
+                                   #' Fit the NaiveBayesClassifier object to a training dataset.
                                    #'
-                                   #' @param X (`array`)\cr
-                                   #' 2D array with feature as column name
+                                   #' @param X (`data.frame`)
+                                   #' 2D dataframe with features as column names.
                                    #'
-                                   #' @param y (`list()`)\cr
-                                   #' List of class to evaluate
+                                   #' @param y (`vector`)
+                                   #' Vector of class labels.
                                    #'
-                                   #' @param col_to_keep (`list()`) columns not to discretize
-                                   #' Default = NULL
+                                   #' @param alpha (`numeric(1)`)
+                                   #' Smoothing parameter. Default is the value set during initialization.
+                                   #'
+                                   #' @param col_to_keep (`character()`)
+                                   #' Columns not to discretize. Default is NULL.
+                                   #'
+                                   #' @param uni_prior_prob (`logical(1)`)
+                                   #' Use uniform prior probabilities. Default is FALSE. If set to TRUE, a uniform prior probability will be used in the calculation.
+                                   #' Ex : 2 class -> p = c(0.5,0.5)
+                                   #'      4 class -> p = c(0.25,0.25,0.25,0.25)
                                    #'
                                    #' @return
-                                   #' Return a fitted object of classe NaiveBayesClassifier
+                                   #' Returns a fitted object of classe NaiveBayesClassifier
+                                   #'
+                                   #' @export
                                    fit = function(X,y, alpha = private$Falpha, col_to_keep = NULL, uni_prior_prob = FALSE){
-                                     #dataframe check
+                                     # Dataframe check
                                      df_ok <- is.data.frame(X)
-                                     if (!df_ok) {stop("This is not a dataframe \n")}
+                                     if (!df_ok) {stop("X must be a dataframe \n")}
 
                                      #vector check
                                      y_test <- dim(X)[1] == length(y)
                                      if (!y_test) {stop("y length different from X row \n")}
 
-                                     if (!is.logical(uni_prior_prob)) {stop("uni_prior_prob must be logical \n")}
+                                     if (!is.logical(uni_prior_prob)) {stop("uni_prior_prob must be logical.\n")}
 
 
                                      #removing Na from training set
                                      if (any(is.na(X)) || any(is.na(y))) {
-                                       warning("NAs present in at least X or y. row with NAs have been removed. \n")
+                                       warning("NAs present in at least X or y. Rows with NAs have been removed.\n")
                                        # row with missing value
                                        na_rows <- complete.cases(X, y)
 
@@ -293,10 +307,10 @@ naivebayes_classifier <- R6::R6Class(classname = "NaiveBayesClassifier",
                                        X <- private$discretize(X_sep)
                                      }
 
-
+                                     # Transform y as factor
                                      y <- as.factor(y)
-
                                      private$Fclass_name <- levels(y)
+
                                      # Prior prob check
                                      if(uni_prior_prob){
                                        private$Fclass_app <- prop.table(table(private$Fclass_name))
@@ -304,62 +318,88 @@ naivebayes_classifier <- R6::R6Class(classname = "NaiveBayesClassifier",
                                        private$Fclass_app <- prop.table(table(y))
                                      }
 
-                                     #Get training information
+                                     # Get training information
                                      private$Ffeat_name <- colnames(X)
                                      private$Fdim_train <- dim(X)
 
-                                     #Initialisation
+                                     # Initialization
                                      vec_log <- NULL
                                      vec_n_feat <- NULL
                                      flag_zero <- FALSE
 
-                                     #posterior table calculation
+                                     # Posterior table calculation
                                      for (i in colnames(X)){
                                        tab_n_feat <- table(X[,i],y)
-                                       vec_n_feat[[i]] <- tab_n_feat #number of occurrence without smoothing parameters
+                                       vec_n_feat[[i]] <- tab_n_feat # Number of occurrence without smoothing parameters
 
                                        if(sum(tab_n_feat == 0)){
-                                         flag_zero <- TRUE
+                                         flag_zero <- TRUE # Warning if there is zero among values
                                        }
 
 
                                        tab_smooth <- tab_n_feat + alpha
-                                       tab_prob <- prop.table(tab_smooth,margin = 2) #Probability
+                                       tab_prob <- prop.table(tab_smooth,margin = 2) # Probability
 
-                                       tab_log <- log(tab_prob) #take the log
+                                       tab_log <- log(tab_prob) # use the log for better representation of small probabilities
                                        vec_log[[i]] <- tab_log
                                      }
 
-                                     #Assignate value to object param
+                                     # Assign values to object parameters
                                      private$Fn_feature_count <- vec_n_feat
                                      private$sample_weight <- vec_log
                                      private$Falpha <- alpha
                                      private$flag_fit <- TRUE
 
                                      if(flag_zero & !alpha){
-                                       warning("Zero value found\nConsider laplace smoothing\n")
+                                       warning("Zero value found. Consider laplace smoothing.\n")
                                      }
 
 
-                                     #Return object as a result for method chaining
+                                     # Return object as a result for method chaining
                                      invisible(self)
                                    },
+                                   #' @description
+                                   #' Fit the NaiveBayesClassifier object to a training dataset using parallel processing.
+                                   #'
+                                   #' @param X (`data.frame`)
+                                   #' 2D dataframe with features as column names.
+                                   #'
+                                   #' @param y (`vector`)
+                                   #' Vector of class labels.
+                                   #'
+                                   #' @param alpha (`numeric(1)`)
+                                   #' Smoothing parameter. Default is 1.
+                                   #'
+                                   #' @param ncores (`integer(1)`)
+                                   #' Number of cores to use for parallel processing. Default is 4. This can't be 0 or less. It can't exceed your computer number of cores.
+                                   #'
+                                   #' @param col_to_keep (`character()`)
+                                   #' Columns not to discretize. Default is NULL.
+                                   #'
+                                   #' @param uni_prior_prob (`logical(1)`)
+                                   #' Use uniform prior probabilities. Default is FALSE. If set to TRUE, a uniform prior probability will be used in the calculation.
+                                   #'
+                                   #' @return
+                                   #' Returns a fitted object of class NaiveBayesClassifier.
+                                   #'
+                                   #' @export
                                    fit_parallel = function(X,y, alpha = 1, ncores = 4, col_to_keep = NULL, uni_prior_prob = FALSE){
                                      if(!require(doParallel) & !require(foreach)){
-                                       stop("library parallel, doParallel or foreach is not installed")
+                                       stop("The libraries 'parallel', 'doParallel', or 'foreach' are not installed.\n")
                                      }
 
-                                     #dataframe check
+                                     # Dataframe check
                                      df_ok <- is.data.frame(X)
                                      if (!df_ok) {stop("This is not a dataframe \n")}
 
-                                     #vector check
+                                     # Vector check
                                      y_test <- dim(X)[1] == length(y)
                                      if (!y_test) {stop("y length different from X row \n")}
 
-                                     if (!is.logical(uni_prior_prob)) {stop("uni_prior_prob must be logical \n")}
+                                     # Logical check
+                                     if (!is.logical(uni_prior_prob)) {stop("uni_prior_prob must be logical.\n")}
 
-                                     #No zero cores
+                                     # Non-zero cores
                                      zero_test <- ncores > 0
                                      if(!zero_test){stop("ncores must be >0 \n")}
 
@@ -367,7 +407,7 @@ naivebayes_classifier <- R6::R6Class(classname = "NaiveBayesClassifier",
 
                                      #removing Na from training set
                                      if (any(is.na(X)) || any(is.na(y))) {
-                                       warning("NAs present in at least X or y. row with NAs have been removed. \n")
+                                       warning("NAs present in at least X or y. Rows with NAs have been removed. \n")
                                        # row with missing value
                                        na_rows <- complete.cases(X, y)
 
@@ -382,15 +422,18 @@ naivebayes_classifier <- R6::R6Class(classname = "NaiveBayesClassifier",
                                        private$get_inter(X_sep, y)
                                        X <- private$discretize(X_sep)
                                      }
-                                     y <- as.factor(y)
 
+                                     # y as factor
+                                     y <- as.factor(y)
                                      private$Fclass_name <- levels(y)
-                                     # Prior prob check
+
+                                     # Prior probability check
                                      if(uni_prior_prob){
                                        private$Fclass_app <- prop.table(table(private$Fclass_name))
                                      }else{
                                        private$Fclass_app <- prop.table(table(y))
                                      }
+
                                      #Get training information
                                      private$Ffeat_name <- colnames(X)
                                      private$Fdim_train <- dim(X)
@@ -404,7 +447,7 @@ naivebayes_classifier <- R6::R6Class(classname = "NaiveBayesClassifier",
                                      liste_final <- list()
                                      vec_final <- NULL
 
-                                     # res inter
+                                     # result obtain from cluster calculation
                                      result <- foreach::foreach(b=blocs,.export =c("self") ,.combine =  ,.inorder = F) %dopar% {
                                        tab_1 <- b[1]
                                        tab <- table(cbind(tab_1,y)) + private$Falpha
@@ -416,14 +459,15 @@ naivebayes_classifier <- R6::R6Class(classname = "NaiveBayesClassifier",
                                      # Stop cluster
                                      doParallel::stopImplicitCluster()
 
+                                     # rename bloc with feature name
                                      names(result) <- names(blocs)
 
-
-
+                                     # Assign value to object
                                      private$sample_weight <- result
                                      private$flag_fit <- TRUE
                                      private$Falpha <- alpha
 
+                                     # Return object as a result for method chaining
                                      invisible(self)
                                    },
                                    #' @description
@@ -432,7 +476,9 @@ naivebayes_classifier <- R6::R6Class(classname = "NaiveBayesClassifier",
                                    #' @param X (`array`)\cr
                                    #' 2D array of shape (n_row,n_feature) with feature as column name
                                    #'
-                                   #' @return Return a list of class prediction
+                                   #' @return Return a vector of class prediction
+                                   #'
+                                   #' @export
                                    predict = function(X){
 
                                      #Call to predict proba
@@ -448,22 +494,26 @@ naivebayes_classifier <- R6::R6Class(classname = "NaiveBayesClassifier",
                                    #' @param X (`array`)\cr
                                    #' 2D array of shape (n_row,n_feature) with feature as column name
                                    #'
-                                   #' @return Return a list of class prediction
+                                   #' @param ncores (`integer(1)`)
+                                   #' Number of cores to use for parallel processing. Default is 4. This can't be 0 or less. It can't exceed your computer number of cores.
+                                   #'
+                                   #' @return Return a vector of class prediction
                                    predict_parallel = function(X, ncores = 4){
-                                     #Is function fitted
+                                     # Is function fitted
                                      if(!private$flag_fit){
                                        stop("\nMust fit function first \n")
                                      }
-                                     #dataframe check
+                                     # Dataframe check
                                      df_ok <- is.data.frame(X)
                                      if (!df_ok) {stop("This is not a dataframe \n")}
 
 
-                                     #No zero cores
+                                     # Non-zero cores
                                      zero_test <- ncores > 0
                                      if(!zero_test){stop("ncores must be >0 \n")}
 
-                                     # Fonction de prediction en parallele
+                                     # Parallel prediction function
+
                                      if(!require(parallel) & !require(doParallel) & !require(foreach)){
                                        stop("\nlibrary parallel, doParallel or foreach is not installed\n")
                                      }else{
@@ -484,6 +534,24 @@ naivebayes_classifier <- R6::R6Class(classname = "NaiveBayesClassifier",
                                        return(y_pred)
                                      }
                                    },
+                                   #' @description
+                                   #' Predict log joint probabilities table for target values based value obtained in fit.
+                                   #'
+                                   #' @param X (`data.frame`) 2D array of shape (n_row, n_feature) with feature names as column names.
+                                   #'
+                                   #' @return Returns a matrix of log joint probabilities with rows corresponding to observations and columns to class labels.
+                                   #'
+                                   #'
+                                   #' @details
+                                   #' This function calculates the log joint probabilities based on the fitted model. It handles numeric and categorical features,
+                                   #' and warns if any feature values were not seen during model fitting.
+                                   #'
+                                   #' @seealso
+                                   #' \code{\link{predict_proba}} for probability predictions instead of log probabilities.
+                                   #'
+                                   #' @note
+                                   #' If some feature values were not seen during model fitting, their contribution to log probabilities is ignored.
+                                   #' @export
                                    predict_proba_joint_log = function(X){
                                      #return the log joint
                                      #Is function fitted
@@ -559,19 +627,52 @@ naivebayes_classifier <- R6::R6Class(classname = "NaiveBayesClassifier",
 
                                      return(log_prob_f)
                                    },
+                                   #' @description
+                                   #' Predict normalized log probabilities for target values based on the entire data set.
+                                   #'
+                                   #' @param X (`data.frame`) 2D array of shape (n_row, n_feature) with feature names as column names.
+                                   #'
+                                   #' @return Returns a matrix of normalized log probabilities with rows corresponding to observations and columns to class labels.
+                                   #'
+                                   #'
+                                   #' @details
+                                   #' This function calculates normalized log probabilities based on the fitted model. It ensures that the probabilities
+                                   #' sum to 1 for each observation.
+                                   #' The normalization is based on Logsumexp.
+                                   #'
+                                   #' @seealso
+                                   #' \code{\link{predict_proba_joint_log}} for obtaining the joint log probabilities.
+                                   #' \code{\link{predict_proba}} for non-logarithmic probability predictions.
+                                   #' @export
                                    predict_proba_log = function(X){
                                      joint_table <- self$predict_proba_joint_log(X)
                                      normalized <- joint_table - log(rowSums(exp(joint_table)))
                                      return(normalized)
-                                   }
-                                   ,
+                                   },
+                                   #' @description
+                                   #' Predict rounded probabilities for target values based on the entire data set.
+                                   #'
+                                   #' @param X (`data.frame`) 2D array of shape (n_row, n_feature) with feature names as column names.
+                                   #'
+                                   #' @return Returns a matrix of rounded probabilities with rows corresponding to observations and columns to class labels.
+                                   #'
+                                   #'
+                                   #' @details
+                                   #' This function calculates probabilities based on the fitted model and rounds them to three decimal places.
+                                   #' normalization is based on logSumExp.
+                                   #'
+                                   #' @seealso
+                                   #' \code{\link{predict_proba_log}} for obtaining logarithmic probabilities.
+                                   #' \code{\link{predict}} for class predictions.
+                                   #'
+                                   #' @export
                                    predict_proba = function(X){
                                      prob_table <- exp(self$predict_proba_log(X))
                                      return(round(prob_table,3))
-                                   }
-                                   ,
+                                   },
                                    #' @description
-                                   #' Use to compare test value with predict value
+                                   #' Use to compare test value with predict value.
+                                   #' return an error if value in prediction and values in observed are different.
                                    #'
                                    #' @param X (`array`)\cr
                                    #' 2D array of shape (n_row,n_feature) with feature as column name
@@ -634,17 +735,23 @@ naivebayes_classifier <- R6::R6Class(classname = "NaiveBayesClassifier",
                                    #' @description
                                    #' Plot a bar plot for each variable of explanatory variables.
                                    #' For each class of a variable, n bars are plot (n = number of y class).
+                                   #' Warning : plot() only work if object has been fitted through the fit(), not the fit_para().
                                    #'
+                                   #'
+                                   #' @details
+                                   #' This function generates a bar plot for each variable based on the fitted model.
+                                   #' Each bar represents the frequency of different classes for that variable.
+                                   #'
+                                   #' @export
                                    plot = function() {
                                      if(!require(plotly)){
-                                       install.packages("plotly")
-                                       #stop("plotly is not installed")
+                                       stop("'plotly' is not installed")
                                      }
 
+                                     # Is fitted ?
                                      if(is.null(private$Fn_feature_count)){stop("object must be fitted with the fit method")}
 
                                      count <- private$Fn_feature_count
-                                     print(count)
                                      plot_list <- list()
                                      for(i in 1:length(count)){
                                        df <- as.data.frame(count[[i]])
@@ -671,6 +778,23 @@ naivebayes_classifier <- R6::R6Class(classname = "NaiveBayesClassifier",
                                      cat("Number of features: ", private$Fdim_train[2], "\n")
                                      cat("Features names: ", paste(private$Ffeat_name, collapse = ", "), "\n")
                                    },
+                                   #' @description
+                                   #' Summary function for the naive Bayes classifier object.
+                                   #' @return
+                                   #' This function prints a summary of the Naive Bayes Classifier, including:
+                                   #' - Smoothing parameter (alpha)
+                                   #' - Dimension of the training data set
+                                   #' - Number of classes
+                                   #' - Class names
+                                   #' - Prior probabilities
+                                   #' - Number of features
+                                   #' - Features names
+                                   #' - Non-numerical features names
+                                   #' - Numerical features names
+                                   #' - Discretization intervals for numerical features
+                                   #'
+                                   #' @export
+                                   #'
                                    summary = function() {
                                      cat("Summary of Naive Bayes Classifier:\n")
                                      cat("Smoothing parameter (alpha): ", private$Falpha, "\n")
@@ -688,25 +812,25 @@ naivebayes_classifier <- R6::R6Class(classname = "NaiveBayesClassifier",
                                  active = list(
                                    #' @field alpha (`float`)\cr
                                    #' Object smoothing parameters alpha used for actual fit.
-                                   #' Alpha as impact on the calculated probability, you need to change it before a fit. Read-only
+                                   #' Alpha has an impact on the calculated probability, you need to change it before a fit. Read-only
                                    alpha = function() return(private$Falpha),
                                    #' @field logsweight (`list()`)\cr
-                                   #' Return list of posterior probability table. Read-only
+                                   #' Return list of posterior probability tables. Read-only
                                    logsweight = function() return(private$sample_weight),
                                    #' @field class_name (`list()`)\cr
-                                   #' Return list of target names. Read-only
+                                   #' Return a list of target names. Read-only
                                    class_name = function() return(private$Fclass_name),
                                    #' @field class_app (`list()`)\cr
-                                   #' Return target prior probability. Read-only
+                                   #' Return the target prior probability. Read-only
                                    class_app = function() return(private$Fclass_app),
                                    #' @field inter (`list()`)\cr
-                                   #' Return target prior probability. Read-only
+                                   #' Return the discretization intervals for numerical features. Read-only
                                    inter = function() return(private$intervalle),
-                                   #' @field inter (`list()`)\cr
-                                   #' Return target prior probability. Read-only
+                                   #' @field feature_name (`list()`)\cr
+                                   #' Return a list of feature names. Read-only
                                    feature_name = function() return(private$Ffeat_name),
-                                   #' @field inter (`list()`)\cr
-                                   #' Return target prior probability. Read-only
+                                   #' @field n_feature_count (`list()`)\cr
+                                   #' Return a list of tables with the number of occurrences of features. Read-only
                                    n_feature_count = function() return(private$Fn_feature_count)
                                  )
 )
