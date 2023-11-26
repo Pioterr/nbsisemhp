@@ -56,6 +56,13 @@ For this exemple we are going to use the iris data set:
 
 We've split it into 2 data frame: X and y. The target variable is Species.
 
+```
+data(iris)
+
+X <- iris[,1:4]
+y <- iris$Species
+```
+
 ### Methods
 
 ```
