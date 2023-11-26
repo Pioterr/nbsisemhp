@@ -1,6 +1,54 @@
 # nbsisemhp
 
-## Rshiny Tuorial:
+## Introduction
+
+This project is part of our cursus in University. 
+The objectif was to create a R package to implement the Naive Bayes classifier under R6 class. We also had to create a shiny web app to show our package possibilities.
+The Naive bayes classifier are probabilistic classifier that apply bayes’ theorem and add a strong independence assumption between features.
+There is different type of Naïve bayes classifier, depending on the type of input data.
+
+
+This package contains different methods:
+* naivebayes_classifier$new() as constructor
+* naivebayes_classifier$stratified_split() split the data in a stratified manner
+*	naivebayes_classifier$fit():
+    *	This method is used to train the model. It takes every type of data as entry and will process them. (There is a parallel version of it)
+*	naivebayes_classifier$predict():
+    *	This method is used for prediction and return the class prediction. (There is a parallel version of it)
+    *	Several other prediction methods are available depending on what you want as output.
+        * naivebayes_classifier$predict_proba_joint_log()
+        * naivebayes_classifier$predict_proba_log()
+        * naivebayes_classifier$predict_proba()
+*	naivebayes_classifier$score() that create confusion matrix, and can give accuracy score.
+*	naivebayes_classifier$plot() is used to plot feature density.
+*	naivebayes_classifier$print()
+*	naivebayes_classifier$summary()
+
+
+## Package Installation
+
+You can install this package directly from github
+```
+library(devtools)
+```
+```
+install_github("Pioterr/nbsisemhp")
+```
+Once the package is downloaded with his dependencies, you can load it.
+```
+library(nbsisemhp)
+```
+Once the package is loaded, you can start to use it.
+
+---
+You can access the documentation with the command
+```
+?naivebayes_classifier
+```
+
+
+
+## Rshiny Tutorial:
 
 We've created an RShiny application to use our newly created package. 
 
