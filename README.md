@@ -45,7 +45,60 @@ You can access the documentation with the command
 ```
 ?naivebayes_classifier
 ```
+## Using the package
 
+### Data description
+
+For this exemple we are going to use the iris data set:
+
+
+<img width="300" alt="image" src="https://github.com/Pioterr/nbsisemhp/assets/145919293/512c1828-c1ef-47ac-a828-a68a0687b4e2">
+
+We've split it into 2 data frame: X and y. The target variable is Species.
+
+### Methods
+
+```
+obj <- naivebayes_classifier$new()
+```
+
+The new() function allows to call the constructor. We store it in "obj".
+Then, we can start using the differents methods.
+
+```
+data <- obj$stratified_split(X,y)
+```
+
+The stratified_split take the explanatories and the target variable as entries and return a list of 4 dataframe: X_train, y_train, X_test and y_test. We stored it in 
+"data".
+
+```
+obj$fit(data$X_train, data$y_train)
+```
+
+We can then call the fit method using the data splited by the last method. 
+The model is now trained inside the "obj" object based on our train data.
+
+```
+pred <- obj$predict(data$X_test)
+```
+
+We can now call the predict method using our test dataset. We stored the prediction result in a variable called "pred".
+
+```
+obj$score(pred, data$y_test, pred_f = FALSE)
+```
+
+We can, with the score method, using the prediction and the y test data print the confusion matrix. If the argument pred_f was set to TRUE, you would have needed to give 
+as first argument the X_test data instead of the prediction. The get the accurac, set "as" to "accuracy".
+
+```
+print(obj)
+obj$summary()
+plot(obj)
+```
+
+Here how to call the print, summary and plot method.
 
 
 ## Rshiny Tutorial:
