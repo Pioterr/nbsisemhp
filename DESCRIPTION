@@ -15,4 +15,4 @@ Imports:
   foreach,
   discretization,
   plotly
-Remotes: github::Pioterr/nbsisemhp@<0.1.0>
+Remotes: github::Pioterr/nbsisemhp
